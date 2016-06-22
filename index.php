@@ -13,13 +13,15 @@ class Router
     /**
      * renvoie une vue en fonction des paramètres transmis, si aucun paramètre renvoie la page d'accueil
      * @param array $params tableau des paramètres de la requête ( au plus simple $_GET, $_POST )
+     * @param bool $forMobile
      * @return string
      */
-    public function get(array $params)
+    public function get(array $params, bool $forMobile = false)
     {
-        $controller = new CompetitionController(PATH_DATA);
 
-        if (isset($params["selectedGroupId"])){
+        $controller = new CompetitionController(PATH_DATA, new ViewFactory($forMobile));
+
+        if (isset($params["selectedGroupId"])) {
             $groupId = $params["selectedGroupId"];
             return $controller->renderGroupView($groupId);
         }
@@ -36,23 +38,31 @@ class CompetitionController
 {
     public $competition;
 
+    public $viewFactory;
+
     /**
      * CompetitionController constructor.
      * @param $path
+     * @param ViewFactory $viewFactory
      */
-    function __construct($path)
+    function __construct($path, ViewFactory $viewFactory)
     {
         $data = file_get_contents($path);
         $this->competition = new Competition(json_decode($data));
+        $this->viewFactory = $viewFactory;
     }
 
     /**
      * renvoi l'affichage de la page d'accueil ( liste des groupes )
      * @return string
      */
-    public function renderIndexView():string{
-        $view = new IndexView($this->competition);
+    public function renderIndexView():string
+    {
+        $view = $this->viewFactory->createIndexView($this->competition);
         return $view->render();
+        //$view = new IndexView($this->competition);
+        //return $this->render($view);
+        //return $view->render();
     }
 
     /**
@@ -60,21 +70,52 @@ class CompetitionController
      * @param string $groupId
      * @return string
      */
-    public function renderGroupView(string $groupId):string{
-        $view = new GroupView($this->competition, $groupId);
+    public function renderGroupView(string $groupId):string
+    {
+        $view = $this->viewFactory->createGroupView($this->competition, $groupId);
+        //$view = new GroupView($this->competition, $groupId);
+        return $this->render($view);
+        //return $view->render();
+    }
+
+    public function render(View $view):string
+    {
         return $view->render();
     }
 }
 
-/**
- * Class IndexView : gestion de l'affichage de la page d'accueil
- */
-class IndexView
+Interface View
+{
+    function render():string;
+}
+
+class ViewFactory
+{
+
+    public $forMobile;
+
+    public function __construct(bool $mobile = false)
+    {
+        $this->forMobile = $mobile;
+    }
+
+    public function createIndexView(Competition $compet):View
+    {
+        return $this->forMobile ? new IndexMobileView($compet) : new IndexView($compet);
+    }
+
+    public function createGroupView(Competition $compet, string $groupId):View
+    {
+        return $this->forMobile ? new GroupMobileView($compet, $groupId) : new GroupView($compet, $groupId);
+    }
+}
+
+abstract class AbstractIndexView implements View
 {
     /**
      * @var Competition
      */
-    private $compet;
+    protected $compet;
 
     /**
      * IndexView constructor : initialisation des données de la compétitions
@@ -85,6 +126,26 @@ class IndexView
         $this->compet = $compet;
     }
 
+    /**
+     * affichage de la liste des équipes
+     * @param $group Group
+     * @return string
+     */
+    protected function renderTeams($group):string
+    {
+        $view = '';
+        foreach ($group->teams as $teamInfo) {
+            $view .= HTMLUtils::tag('p', HTMLUtils::img($teamInfo->flag) . $teamInfo->nom);
+        }
+        return $view;
+    }
+}
+
+/**
+ * Class IndexView : gestion de l'affichage de la page d'accueil
+ */
+class IndexMobileView extends AbstractIndexView
+{
     public function render():string
     {
         $view = HTMLUtils::tag('h1', $this->compet->name);
@@ -96,64 +157,46 @@ class IndexView
 
         return $view;
     }
+}
 
-    /**
-     * affichage de la liste des équipes
-     * @param $group Group
-     * @return string
-     */
-    private function renderTeams($group):string
+/**
+ * Class IndexView : gestion de l'affichage de la page d'accueil
+ */
+class IndexView extends AbstractIndexView
+{
+
+    public function render():string
     {
-        $view = '';
-        foreach ($group->teams as $teamInfo) {
-            $view .= HTMLUtils::tag('p', HTMLUtils::img($teamInfo->flag).$teamInfo->nom);
+        $view = HTMLUtils::img('assets/euro.jpg'); // TODO permettre de choisir la taille de l'image
+        $view .= HTMLUtils::tag('h1', $this->compet->name);
+
+        foreach ($this->compet->groups as $group) {
+            $view .= HTMLUtils::ahref(PATH_APP . '?selectedGroupId=' . $group->id, HTMLUtils::tag('h2', $group->id));
+            $view .= $this->renderTeams($group);
         }
+
         return $view;
     }
 }
 
-/**
- * Class GroupView : affichage de la page de détails d'un groupe ( liste  des matches )
- */
-class GroupView{
+abstract class AbstractGroupView implements View
+{
     /**
      * @var Competition
      */
-    private $compet;
-    private $group;
+    protected $compet;
+    protected $group;
 
     /**
      * GroupView constructor : initialisation des données
      * @param Competition $compet
      * @param string $groupId
      */
-    public function __construct(Competition $compet, string $groupId )
+    public function __construct(Competition $compet, string $groupId)
     {
         $this->compet = $compet;
 
-        $this->group = $compet->getGroupById($groupId); // TODO gestion d'erreur
-    }
-
-    public function render():string
-    {
-        if ($this->group == null){
-            $view = HTMLUtils::ahref(PATH_APP, "Retour à la liste");
-            $view .= HTMLUtils::tag("p","Ce groupe n'existe pas");
-        }
-
-        else {
-            $view = HTMLUtils::tag('h1', $this->compet->name);
-            $view .= HTMLUtils::ahref(PATH_APP, "Retour à la liste");
-            $view .= HTMLUtils::tag('h2', "Groupe " . $this->group->id);
-            $view .= $this->renderMatches($this->group->teams);
-        }
-
-        /*foreach ($this->group->teams as $team) {
-            //$view .= Utils::ahref(PATH_APP . '?selectedGroupId=' . $group->id, Utils::tag('h2', $group->id));
-            $view .= $this->renderMatch($teams);
-        }*/
-
-        return $view;
+        $this->group = $compet->getGroupById($groupId);
     }
 
     /**
@@ -161,23 +204,66 @@ class GroupView{
      * @return string
      * @internal param Group $group
      */
-    private function renderMatches($teams):string
+    protected function renderMatches($teams):string
     {
-
         $count = 0;
-        $matches = array_map( function($team) use( $teams , &$count){
+        $matches = array_map(function ($team) use ($teams, &$count) {
             $content = '';
-            for($i = $count; $i < 4 ; $i++ ){
+            for ($i = $count; $i < 4; $i++) {
                 $t = $teams[$i];
-                if( $t != $team )
-                    $content .= HTMLUtils::tag('p', HTMLUtils::img($team->flag).$team->nom . '-' . $t->nom.HTMLUtils::img($t->flag));
+                if ($t != $team)
+                    $content .= HTMLUtils::tag('p', HTMLUtils::img($team->flag) . $team->nom . '-' . $t->nom . HTMLUtils::img($t->flag));
             }
             $count++;
             return $content;
-        } , $teams );
+        }, $teams);
 
         return implode($matches);
 
+    }
+}
+
+/**
+ * Class GroupView : affichage de la page de détails d'un groupe ( liste  des matches )
+ */
+class GroupView extends AbstractGroupView
+{
+    public function render():string
+    {
+        if ($this->group == null) {
+            $view = HTMLUtils::ahref(PATH_APP, "Retour à la liste");
+            $view .= HTMLUtils::tag("p", "Ce groupe n'existe pas");
+        } else {
+            $view = HTMLUtils::img('assets/euro.jpg'); // TODO permettre de choisir la taille de l'image
+            $view .= HTMLUtils::tag('h1', $this->compet->name);
+            $view .= HTMLUtils::ahref(PATH_APP, "Retour à la liste");
+            $view .= HTMLUtils::tag('h2', "Groupe " . $this->group->id);
+            $view .= $this->renderMatches($this->group->teams);
+        }
+
+        return $view;
+    }
+}
+
+
+/**
+ * Class GroupView : affichage de la page de détails d'un groupe ( liste  des matches )
+ */
+class GroupMobileView
+{
+    public function render():string
+    {
+        if ($this->group == null) {
+            $view = HTMLUtils::ahref(PATH_APP, "Retour à la liste");
+            $view .= HTMLUtils::tag("p", "Ce groupe n'existe pas");
+        } else {
+            $view = HTMLUtils::tag('h1', $this->compet->name);
+            $view .= HTMLUtils::ahref(PATH_APP, "Retour à la liste");
+            $view .= HTMLUtils::tag('h2', "Groupe " . $this->group->id);
+            $view .= $this->renderMatches($this->group->teams);
+        }
+
+        return $view;
     }
 }
 
@@ -308,7 +394,7 @@ class HTMLUtils
      */
     static public function img(string $url):string
     {
-        return '<img class="flags" src="' . $url .'"></img>';
+        return '<img class="flags" src="' . $url . '"></img>';
     }
 }
 
@@ -326,6 +412,6 @@ $page = $router->get($_GET);
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<?php echo $page?>
+<?php echo $page ?>
 </body>
 </html>

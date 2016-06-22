@@ -6,19 +6,19 @@
       "teams": [
         {
           "nom": "France",
-          "flag": "flags/france.png"
+          "flag": "assets/flags/france.png"
         },
         {
           "nom": "Roumanie",
-          "flag": "flags/roumanie.png"
+          "flag": "assets/flags/roumanie.png"
         },
         {
           "nom": "Albanie",
-          "flag": "flags/albanie.png"
+          "flag": "assets/flags/albanie.png"
         },
         {
           "nom": "Suisse",
-          "flag": "flags/suisse.png"
+          "flag": "assets/flags/suisse.png"
         }
       ]
     },
@@ -27,19 +27,19 @@
       "teams":[
         {
           "nom": "Angleterre",
-          "flag": "flags/angleterre.png"
+          "flag": "assets/flags/angleterre.png"
         },
         {
           "nom": "Russie",
-          "flag": "flags/russie.png"
+          "flag": "assets/flags/russie.png"
         },
         {
           "nom": "Pays de Galle",
-          "flag": "flags/paysDeGalle.png"
+          "flag": "assets/flags/paysDeGalle.png"
         },
         {
           "nom": "Slovaquie",
-          "flag": "flags/slovaquie.png"
+          "flag": "assets/flags/slovaquie.png"
         }
       ]
     },
@@ -48,19 +48,19 @@
       "teams":[
         {
           "nom": "Allemagne",
-          "flag": "flags/allemagne.png"
+          "flag": "assets/flags/allemagne.png"
         },
         {
           "nom": "Pologne",
-          "flag": "flags/pologne.png"
+          "flag": "assets/flags/pologne.png"
         },
         {
           "nom": "Irlande du Nord",
-          "flag": "flags/irlandeNord.png"
+          "flag": "assets/flags/irlandeNord.png"
         },
         {
           "nom": "Ukraine",
-          "flag": "flags/ukraine.png"
+          "flag": "assets/flags/ukraine.png"
         }
       ]
     },
@@ -69,19 +69,19 @@
       "teams":[
         {
           "nom": "Espagne",
-          "flag": "flags/espagne.png"
+          "flag": "assets/flags/espagne.png"
         },
         {
           "nom": "Croatie",
-          "flag": "flags/croatie.png"
+          "flag": "assets/flags/croatie.png"
         },
         {
           "nom": "Rép. Tchèque",
-          "flag": "flags/repTcheque.png"
+          "flag": "assets/flags/repTcheque.png"
         },
         {
           "nom": "Turquie",
-          "flag": "flags/turquie.png"
+          "flag": "assets/flags/turquie.png"
         }
       ]
     },
@@ -90,19 +90,19 @@
       "teams":[
         {
           "nom": "Belgique",
-          "flag": "flags/belgique.png"
+          "flag": "assets/flags/belgique.png"
         },
         {
           "nom": "Italie",
-          "flag": "flags/italie.png"
+          "flag": "assets/flags/italie.png"
         },
         {
           "nom": "Suède",
-          "flag": "flags/suede.png"
+          "flag": "assets/flags/suede.png"
         },
         {
           "nom": "Rép. d'Irlande",
-          "flag": "flags/repIrlande.png"
+          "flag": "assets/flags/repIrlande.png"
         }
       ]
     },
@@ -111,19 +111,19 @@
       "teams":[
         {
           "nom": "Hongrie",
-          "flag": "flags/hongrie.png"
+          "flag": "assets/flags/hongrie.png"
         },
         {
           "nom": "Islande",
-          "flag": "flags/islande.png"
+          "flag": "assets/flags/islande.png"
         },
         {
           "nom": "Portugal",
-          "flag": "flags/portugal.png"
+          "flag": "assets/flags/portugal.png"
         },
         {
           "nom": "Autriche",
-          "flag": "flags/autriche.png"
+          "flag": "assets/flags/autriche.png"
         }
       ]
     }
