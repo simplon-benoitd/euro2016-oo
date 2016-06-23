@@ -171,7 +171,7 @@ class IndexView extends AbstractIndexView
         $view .= HTMLUtils::tag('h1', $this->compet->name);
 
         foreach ($this->compet->groups as $group) {
-            $view .= HTMLUtils::ahref(PATH_APP . '?selectedGroupId=' . $group->id, HTMLUtils::tag('h2', $group->id));
+            $view .= HTMLUtils::ahref(PATH_APP . '?selectedGroupId=' . $group->getId(), HTMLUtils::tag('h2', $group->getId()));
             $view .= $this->renderTeams($group);
         }
 
@@ -196,7 +196,11 @@ abstract class AbstractGroupView implements View
     {
         $this->compet = $compet;
 
-        $this->group = $compet->getGroupById($groupId);
+        try {
+            $this->group = $compet->getGroupById($groupId);
+        } catch (Exception $error) {
+            echo 'Error !!!' . $error->getMessage();
+        }
     }
 
     /**
@@ -308,9 +312,10 @@ class Competition
     /**
      * renvoie le groupe
      * @param $groupId
-     * @return Group
+     * @return Group|null
+     * @throws Exception
      */
-    public function getGroupById($groupId)
+    public function getGroupById($groupId):Group
     {
         $selectedGroups = array_filter(
             $this->groups,
@@ -322,7 +327,8 @@ class Competition
             $selectedGroup = $selectedGroups[array_keys($selectedGroups)[0]];
 
         else if (count($selectedGroups) == 0)
-            $selectedGroup = null;
+            throw new Exception("Erreur : l'id n'existe pas");
+        //$selectedGroup = null;
 
         return $selectedGroup;
     }
@@ -336,7 +342,19 @@ class Group
     /**
      * @var string
      */
-    public $id;
+    private $id;
+
+    public function getId():string
+    {
+        return $this->id;
+    }
+
+    public function setId($value)
+    {
+        if (is_string($value))
+            $this->id = $value;
+    }
+
     /**
      * @var array
      */
@@ -349,7 +367,7 @@ class Group
 
     private function initData($src)
     {
-        $this->id = $src->id;
+        $this->setId($src->id);
         // teams
         $this->teams = [];
         foreach ($src->teams as $team) {
