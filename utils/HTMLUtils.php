@@ -7,9 +7,24 @@ namespace utils;
  */
 class HTMLUtils
 {
+
+    /**
+     * renvoie une string representant des balises HTML
+     * @param $tag
+     * @param $str
+     * @return string
+     * @throws \Exception
+     */
     static public function tag(string $tag, string $str):string
     {
-        return "<" . $tag . ">" . $str . "</" . $tag . ">";
+        if(HTMLUtils::checkHTMLTag($tag) === true){
+            return "<" . $tag . ">" . $str . "</" . $tag . ">";
+        }
+        else{
+
+            throw new \Exception("Erreur : cette balise n'existe pas");
+        }
+        
     }
 
     /**
@@ -32,4 +47,24 @@ class HTMLUtils
     {
         return '<img class="flags" src="' . $url . '"></img>';
     }
+
+    /**
+     * Verifie qu'un tag HTML existe et revoie true ou false.
+     * @param string $tag
+     * @return bool
+     */
+    static public function checkHTMLTag(string $tag):bool
+    {
+        $HTMLtags = file_get_contents("HTMLTags.json");
+        $HTMLtags = json_decode($HTMLtags,true);
+
+        if(array_search ( $tag , $HTMLtags)!= false){
+            return true;
+        }
+        else{
+            return false;
+        }
+
+    }
 }
+
