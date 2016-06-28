@@ -7,6 +7,8 @@ namespace utils;
  */
 class HTMLUtils
 {
+    static $jsonHTMLtags;
+
 
     /**
      * renvoie une string representant des balises HTML
@@ -55,8 +57,10 @@ class HTMLUtils
      */
     static public function checkHTMLTag(string $tag):bool
     {
-        $HTMLtags = file_get_contents("HTMLTags.json");
-        $HTMLtags = json_decode($HTMLtags,true);
+        if(self::$jsonHTMLtags === null ){
+            self::$jsonHTMLtags = file_get_contents("HTMLTags.json");
+        }
+        $HTMLtags = json_decode(self::$jsonHTMLtags,true);
 
         if(array_search ( $tag , $HTMLtags)!= false){
             return true;
