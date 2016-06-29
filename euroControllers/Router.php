@@ -4,7 +4,8 @@ namespace euroControllers;
 
 use euroViews\ViewFactory;
 
-define("PATH_DATA", "competition.json");
+//define("PATH_DATA", "competition.json");
+define("PATH_DATA", "competition.xml");
 
 
 /**
