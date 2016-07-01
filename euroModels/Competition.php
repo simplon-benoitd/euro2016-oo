@@ -55,6 +55,7 @@ class Competition
                 //echo $groupId." / " .$group->id.B;
                 return $group->id == $groupId;
             });
+        
         if (count($selectedGroups) > 0)
             $selectedGroup = $selectedGroups[array_keys($selectedGroups)[0]];
 

@@ -5,6 +5,7 @@ namespace euroControllers;
 use euroViews\ViewFactory;
 use euroViews\View;
 use euroModels\Competition;
+use utils\FileLoader;
 
 /**
  * Class CompetitionController
@@ -23,8 +24,10 @@ class CompetitionController
      */
     function __construct($path, ViewFactory $viewFactory)
     {
-        $data = file_get_contents($path);
-        $this->competition = new Competition(json_decode($data));
+        $data = new  FileLoader($path);
+        $data = $data->getFileType();
+        
+        $this->competition = new Competition($data);
         $this->viewFactory = $viewFactory;
     }
 
